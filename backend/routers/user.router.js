@@ -26,7 +26,12 @@ router.post("/", async (req, res) => {
       });
 
     const existingUser = await User.findOne({ email: email });
-    if (existingUser)
+    if (existingUser && !existingUser.verified)
+      return res.status(400).json({
+        message: "You haven't verified your email address.",
+      });
+
+      if (existingUser && existingUser.verified)
       return res.status(400).json({
         message: "An account with this email already exists.",
       });
@@ -53,21 +58,11 @@ router.post("/", async (req, res) => {
       token: token,
     }).save();
 
-    /**
-     * res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-      })
-      .send();
-     */
-
     const url = `${process.env.BASE_URL}/verify?id=${savedUser.id}&token=${emailToken.token}`;
     console.log(url)
     await sendMail(savedUser.email, "Verify Email", process.env.BLOB + " " + url);
 
-    res
+    return res
       .status(201)
       .send({ message: "An email was sent to your account. Please verify your account before logging in." });
 
@@ -83,44 +78,49 @@ router.post("/verify", async (req, res) => {
     console.log(req.body)
     const user = await User.findById(req.body.id);
 
-    if (!user) return res.status(400).send({ message: "Invalid link" });
+    if (!user) return res.status(400).send({ message: process.env.INVALID });
+    console.log("s1")
 
     const token = await EmailVerifyToken.findOne({
       userId: user._id,
       token: req.body.token,
     });
+    console.log("s2")
 
-    if (!token) return res.status(400).send({ message: "Invalid link" });
+    if (!token) return res.status(400).send({ message: process.env.INVALID });
 
     const updateData = {
       verified: true
     };
-
     await User.findByIdAndUpdate(user.id, updateData, { new: true })
       .then(updatedUser => {
         if (updatedUser) {
           console.log("Uspio")
         } else {
           console.log("NEUspio")
-          res.status(404).json({ message: 'User not found' });
+          return res.status(404).json({ message: 'User not found' });
         }
       })
-      .catch(error => {
-        console.log(error)
-        res.status(500).json({ message: 'Error updating user by ID' });
-      });
+      //.catch(error => {
+      //  console.log(error)
+       // return res.status(500).json({ message: 'Error updating user by ID' });
+      //});
 
-
-    await token.remove();
+      console.log("svencek")
+    await token.deleteOne({
+      userId: user._id,
+      token: req.body.token,
+    });
+    console.log("svencek2")
 
     const cookieToken = jwt.sign(
       {
-        user: existingUser._id
+        user: user._id
       },
       process.env.JWT_SECRET
     );
 
-    res
+    return res.status(200)
       .cookie("token", cookieToken, {
         httpOnly: true,
         secure: true,
@@ -128,9 +128,9 @@ router.post("/verify", async (req, res) => {
       })
       .send({ message: "Email verified successfully"});
 
-    //res.status(200).send({ message: "Email verified successfully", accessToken: accessToken });
   } catch (error) {
-    res.status(500).send({ message: "Internal Server Error" });
+    console.log(error)
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 });
 
@@ -154,7 +154,7 @@ router.post("/login", async (req, res) => {
 
     const existingUser = await User.findOne({ email });
     if (!existingUser)
-      return res.status(401).json({ errorMessage: "Wrong email or password." });
+      return res.status(401).json({ errorMessage: "There is no account associated with that email. You might want to register first." });
 
     const passwordCorrect = await bcrypt.compare(
       password,
@@ -199,14 +199,16 @@ router.get("/logout", (req, res) => {
 
 router.get("/loggedIn", (req, res) => {
   try {
+    console.log("token: " + req.cookies.token)
     const token = req.cookies.token;
-    if (!token) return res.json(false);
+
+    if (!token || token===undefined) return res.send(false);
 
     jwt.verify(token, process.env.JWT_SECRET);
 
-    res.send(true);
+    return res.send(true);
   } catch (err) {
-    res.json(false);
+    return res.send(false);
   }
 });
 
