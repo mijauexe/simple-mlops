@@ -5,7 +5,6 @@ import Register from "./pages/Register";
 import Image from "./pages/Image";
 import Navbar from "./Topbar";
 import AuthContext from "./context/AuthContext";
-import Home from "./pages/Home";
 import VerifyEmail from "./pages/VerifyEmail";
 
 function Router() {
@@ -16,19 +15,17 @@ function Router() {
       <Navbar />
       <Routes>
 
-        <Route path="/" element={<Home />}></Route>
-
         {loggedIn === false && (
           <>
             <Route path="/register" element={<Register />}></Route>
+            <Route path="/" element={<Login />}></Route>
             <Route path="/login" element={<Login />}></Route>
             <Route path="/verify" element={<VerifyEmail />}></Route>
-
           </>
         )}
         {loggedIn === true && (
           <>
-            <Route path="/image" element={<Image />}></Route>
+            <Route path="/" element={<Image />}></Route>
           </>
         )}
       </Routes>
