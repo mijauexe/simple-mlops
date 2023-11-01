@@ -46,7 +46,7 @@ router.post("/upload", auth, upload.single('file'), async (req, res) => {
   try {
     let img = fs.readFileSync(req.file.path).toString('base64');
 
-    const post1 = bent('http://localhost:5000/', 'POST', 'json', 200);
+    const post1 = bent('http://ml:5000/', 'POST', 'json', 200);
     const response = await post1('test-model', { "img": img });
 
     console.log(response)
