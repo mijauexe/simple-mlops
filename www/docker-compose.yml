@@ -1,0 +1,51 @@
+version: "3"
+services:
+
+  frontend:
+    image: nekisven/simple-mlops:frontend
+    stdin_open: true
+    container_name: frontend
+    depends_on:
+      - ml
+      - backend
+    ports:
+      - "3000:3000"
+    networks:
+      - simple-mlops
+
+  backend:
+    image: nekisven/simple-mlops:backend
+    container_name: backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo
+      - ml
+    networks:
+      - simple-mlops
+
+  ml:
+    image: nekisven/simple-mlops:ml
+    container_name: ml
+    ports:
+      - "5000:5000"
+    networks:
+      - simple-mlops
+
+  mongo: 
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - simple-mlops
+
+volumes:
+  mongo-data:
+    driver: local
+
+networks:
+  simple-mlops:
+    driver: bridge
