@@ -15,10 +15,10 @@ def test_model():
         req = json.loads(request.data)
         b64_img = req["img"]
         img = base64.b64decode(b64_img)
-        digit = MyMNISTModel.test_model_from_file(f'./model.pth', img)
+        digit = MyMNISTModel.test_model_from_file(f'./model/model.pth', img)
         return {'digit' : digit}
     except Exception as exc:
         return {'error' : str(exc)}
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
