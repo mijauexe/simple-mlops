@@ -6,6 +6,7 @@ import { AuthContextProvider } from "./context/AuthContext";
 axios.defaults.withCredentials = true;
 
 function App() {
+
   return (
     <AuthContextProvider>
       <Router />

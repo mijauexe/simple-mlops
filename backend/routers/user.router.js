@@ -6,10 +6,14 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/email");
 
+router.get("/", (req, res) => {
+  return res
+        .status(200);
+});
+
 router.post("/", async (req, res) => {
   try {
     const { email, password, passwordVerify } = req.body;
-    console.log(req.body)
     if (!email || !password || !passwordVerify)
       return res
         .status(400)
@@ -59,7 +63,6 @@ router.post("/", async (req, res) => {
     }).save();
 
     const url = `${process.env.BASE_URL}/verify?id=${savedUser.id}&token=${emailToken.token}`;
-    console.log(url)
     await sendMail(savedUser.email, "Verify Email", process.env.BLOB + " " + url);
 
     return res
@@ -67,7 +70,6 @@ router.post("/", async (req, res) => {
       .send({ message: "An email was sent to your account. Please verify your account before logging in." });
 
   } catch (err) {
-    console.error(err);
     res.status(500).send();
   }
 });
@@ -75,7 +77,6 @@ router.post("/", async (req, res) => {
 router.post("/forgot", async (req, res) => {
   try {
     const { email, password, passwordVerify } = req.body;
-    console.log(req.body)
 
     if (!email || !password || !passwordVerify)
       return res
@@ -97,8 +98,6 @@ router.post("/forgot", async (req, res) => {
       return res.status(400).json({
         message: "An account with this email doesn't exist.",
       });
-    console.log(password)
-    console.log(existingUser.password)
 
     const passwordIsTheSame = await bcrypt.compare(
       password,
@@ -120,10 +119,7 @@ router.post("/forgot", async (req, res) => {
 
     await User.findByIdAndUpdate(existingUser.id, updateData, { new: true })
       .then(updatedUser => {
-        if (updatedUser) {
-          console.log("Uspio")
-        } else {
-          console.log("NEUspio")
+        if (!updatedUser) {
           return res.status(404).json({ message: 'User not found' });
         }
       })
@@ -141,7 +137,6 @@ router.post("/forgot", async (req, res) => {
     }).save();
 
     const url = `${process.env.BASE_URL}/verify?id=${existingUser.id}&token=${emailToken.token}`;
-    console.log(url)
     await sendMail(existingUser.email, "Verify Email", process.env.BLOB + " " + url);
 
     return res
@@ -149,25 +144,20 @@ router.post("/forgot", async (req, res) => {
       .send({ message: "An email was sent to your account. Verify your email and then you can log in with your new password." });
 
   } catch (err) {
-    console.error(err);
     res.status(500).send();
   }
 });
 
 router.post("/verify", async (req, res) => {
   try {
-    console.log("Dosao u verify")
-    console.log(req.body)
     const user = await User.findById(req.body.id);
 
     if (!user) return res.status(400).send({ message: process.env.INVALID });
-    console.log("s1")
 
     const token = await EmailVerifyToken.findOne({
       userId: user._id,
       token: req.body.token,
     });
-    console.log("s2")
 
     if (!token) return res.status(400).send({ message: process.env.INVALID });
 
@@ -177,24 +167,15 @@ router.post("/verify", async (req, res) => {
 
     await User.findByIdAndUpdate(user.id, updateData, { new: true })
       .then(updatedUser => {
-        if (updatedUser) {
-          console.log("Uspio")
-        } else {
-          console.log("NEUspio")
+        if (!updatedUser) {
           return res.status(404).json({ message: 'User not found' });
         }
       })
-
-    //.catch(error => {
-    //  console.log(error)
-    // return res.status(500).json({ message: 'Error updating user by ID' });
-    //});
 
     await token.deleteOne({
       userId: user._id,
       token: req.body.token,
     });
-    console.log("svencek2")
 
     const cookieToken = jwt.sign(
       {
@@ -212,23 +193,13 @@ router.post("/verify", async (req, res) => {
       .send({ message: "Email verified successfully" });
 
   } catch (error) {
-    console.log(error)
     return res.status(500).send({ message: "Internal Server Error" });
   }
 });
 
-
-// log in
-
-
-
 router.post("/login", async (req, res) => {
   try {
-    console.log(req.body)
-    console.log(req.params)
     const { email, password } = req.body;
-
-    // validate
 
     if (!email || !password)
       return res
@@ -264,7 +235,6 @@ router.post("/login", async (req, res) => {
       })
       .send();
   } catch (err) {
-    console.error(err);
     res.status(500).send();
   }
 });
@@ -282,9 +252,7 @@ router.get("/logout", (req, res) => {
 
 router.get("/loggedIn", (req, res) => {
   try {
-    console.log("token: " + req.cookies.token)
     const token = req.cookies.token;
-
     if (!token || token === undefined) return res.send(false);
 
     jwt.verify(token, process.env.JWT_SECRET);

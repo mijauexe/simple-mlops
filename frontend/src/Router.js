@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Forgot from "./pages/Forgot";
 import Image from "./pages/Image";
+import DefaultPage from "./pages/DefaultPage";
 import Navbar from "./Topbar";
 import AuthContext from "./context/AuthContext";
 import VerifyEmail from "./pages/VerifyEmail";
@@ -30,6 +31,7 @@ function Router() {
             <Route path="/" element={<Image />}></Route>
           </>
         )}
+        <Route path="*" element={<DefaultPage />} />
       </Routes>
     </BrowserRouter>
   );
