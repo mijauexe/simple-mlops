@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Forgot from "./pages/Forgot";
 import Image from "./pages/Image";
 import Navbar from "./Topbar";
 import AuthContext from "./context/AuthContext";
@@ -18,6 +19,7 @@ function Router() {
         {loggedIn === false && (
           <>
             <Route path="/register" element={<Register />}></Route>
+            <Route path="/forgot" element={<Forgot />}></Route>
             <Route path="/" element={<Login />}></Route>
             <Route path="/login" element={<Login />}></Route>
             <Route path="/verify" element={<VerifyEmail />}></Route>
