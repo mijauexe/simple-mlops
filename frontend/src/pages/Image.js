@@ -1,8 +1,7 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
-import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -26,14 +25,11 @@ function Image() {
     }
 
     try {
-      console.log(formData.keys)
       const response = await axios.post(process.env.REACT_APP_API_URL + "/image/upload", formData, config);
-      console.log(response)
       setMlResult(response.data.digit)
     } catch (err) {
       setErr(true)
       setErrMsg(err.response.data.message)
-      console.log(err)
     }
 
   }
@@ -51,7 +47,6 @@ function Image() {
           const img = document.createElement('img');
 
           const selectedImage = e.target.files[0];
-          console.log(selectedImage)
           const objectURL = URL.createObjectURL(selectedImage);
   
           const form = new FormData();
@@ -59,9 +54,6 @@ function Image() {
   
   
           img.onload = function handleLoad() {
-            console.log(`Width: ${img.width}, Height: ${img.height}`);
-            console.log(img)
-            console.log(objectURL)
             if (img.width === 28 && img.height === 28) {
               checkDigit(selectedImage) 
             } else {

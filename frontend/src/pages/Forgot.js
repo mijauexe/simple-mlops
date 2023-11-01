@@ -1,13 +1,9 @@
 import axios from "axios";
-import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import AuthContext from "../context/AuthContext";
+import React, { useState } from "react";
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -26,11 +22,7 @@ function Forgot() {
     const [emailErr, setEmailErr] = useState(false)
     const [emailMsg, setEmailMsg] = useState("")
 
-    const { getLoggedIn } = useContext(AuthContext);
-    const navigate = useNavigate();
-
     const defaultTheme = createTheme();
-
 
     async function forgot(e) {
         setEmailSent(false)
@@ -46,22 +38,18 @@ function Forgot() {
             };
 
             const response = await axios.post(process.env.REACT_APP_API_URL + "/auth/forgot", registerData);
-            console.log(response)
 
             if(response.status === 201) {
                 setEmailSent(true)
                 setEmailMsg(response.data.message)
             } else {
                 setEmailErr(true)
-                //console.log(response.data.message)
                 setEmailMsg(response.status + " " + response.data.message)
             }
 
         } catch (err) {
-            //console.log(err)
             try {
             setEmailErr(true)
-            console.log(err)
             setEmailMsg(err.response.data.message)
             } catch(err) {
                 //backend not working
