@@ -94,7 +94,7 @@ function Topbar() {
                 onClose={handleClose}
               >
                 <MenuItem onClick={handleClose}>
-                  <DirectionsRunIcon/>
+                  <DirectionsRunIcon onClick={logOut}/>
                   <Typography onClick={logOut} textAlign="center">Log out
 
                 </Typography></MenuItem>
