@@ -19,9 +19,9 @@ from the _www subfolder_ of the project.
 
 
 ## Features
-Login, Logout, Register, Forgot password (Authentication)
-Basic ML server using Flask
-MNIST photo upload
+- [x] Login, Logout, Register, Forgot password (Authentication)
+- [x] Basic ML server using Flask
+- [x] MNIST photo upload
 
 
 ## Stack
