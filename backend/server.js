@@ -5,7 +5,7 @@ const app = express()
 const cors = require('cors')
 const cookieParser = require("cookie-parser")
 
-mongoose.connect('mongodb://localhost:27017/simple-mlops')
+mongoose.connect('mongodb://mongo:27017/simple-mlops')
 
 app.use(cors({
   origin: [process.env.BASE_URL],
