@@ -7,13 +7,15 @@ import { styled } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Grid from '@mui/material/Grid';
+import Alert from '@mui/material/Alert';
+
 function Image() {
   const [err, setErr] = useState(false)
+  const [errMsg, setErrMsg] = useState("")
+
+  const [mlResult, setMlResult] = useState(undefined)
 
   async function checkDigit(img) {
-    console.log("img")
-    console.log(img)
-
     let formData = new FormData()
     formData.append('file', img)
 
@@ -23,12 +25,14 @@ function Image() {
       }
     }
 
-
     try {
       console.log(formData.keys)
       const response = await axios.post(process.env.REACT_APP_API_URL + "/image/upload", formData, config);
       console.log(response)
+      setMlResult(response.data.digit)
     } catch (err) {
+      setErr(true)
+      setErrMsg(err.response.data.message)
       console.log(err)
     }
 
@@ -36,35 +40,46 @@ function Image() {
 
   function imageProcessing(e) {
     e.preventDefault()
+    
+    setErr(false)
+    setErrMsg("")
+    setMlResult(undefined)
+
     if (e.target.files !== undefined) {
       if (e.target.files.length > 0) {
-        const img = document.createElement('img');
+        if (e.target.files[0].type.startsWith('image/')) {
+          const img = document.createElement('img');
 
-        const selectedImage = e.target.files[0];
-        console.log(selectedImage)
-        const objectURL = URL.createObjectURL(selectedImage);
-
-        const form = new FormData();
-        form.append("file", img);
-
-        checkDigit(selectedImage)
-
-        img.onload = function handleLoad() {
-          console.log(`Width: ${img.width}, Height: ${img.height}`);
-          console.log(img)
-          console.log(objectURL)
-          if (img.width == 28 && img.height == 28) {
-            //checkDigit(selectedImage)    
-          }
-
-          URL.revokeObjectURL(objectURL);
-        };
-        img.src = objectURL;
+          const selectedImage = e.target.files[0];
+          console.log(selectedImage)
+          const objectURL = URL.createObjectURL(selectedImage);
+  
+          const form = new FormData();
+          form.append("file", img);
+  
+  
+          img.onload = function handleLoad() {
+            console.log(`Width: ${img.width}, Height: ${img.height}`);
+            console.log(img)
+            console.log(objectURL)
+            if (img.width === 28 && img.height === 28) {
+              checkDigit(selectedImage) 
+            } else {
+              setErr(true)
+              setErrMsg("Image is not from MNIST dataset, try again.")
+            }
+  
+            URL.revokeObjectURL(objectURL);
+          };
+          img.src = objectURL;
+        } else {
+          setErr(true)
+          setErrMsg("You haven't uploaded a photo, try again.")
+        }
+        
       }
     }
   }
-
-
 
   const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -80,6 +95,8 @@ function Image() {
 
   return (
     <div>
+      {err && <Alert severity="error">{errMsg}</Alert>}
+      {mlResult && <Alert severity="success">The model says this image is a: {mlResult}</Alert>}
       <React.Fragment>
         <CssBaseline />
         <Grid
@@ -92,13 +109,13 @@ function Image() {
         >
           <Grid item xs={3}>
             <Container maxWidth="xs">
-              <input
-                id="image-input"
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={imageProcessing}
-              />
+              
+              
+
+        <Button component="label" variant="contained" color = "secondary" startIcon={<CloudUploadIcon />}>
+          Upload image
+          <VisuallyHiddenInput type="file"  accept="image/*" onChange={imageProcessing}/>
+        </Button>
 
 
             </Container>

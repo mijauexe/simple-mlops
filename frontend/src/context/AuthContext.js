@@ -8,7 +8,6 @@ function AuthContextProvider(props) {
 
   async function getLoggedIn() {
     const loggedInRes = await axios.get(process.env.REACT_APP_API_URL + "/auth/loggedIn");
-    console.log(loggedInRes.data)
     setLoggedIn(loggedInRes.data);
     return loggedInRes.data
   }

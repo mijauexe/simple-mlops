@@ -1,11 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Image from "./Image";
+import AuthContext from "../context/AuthContext";
 
 const VerifyEmail = () => {
 	const navigate = useNavigate();
+
+	const { getLoggedIn } = useContext(AuthContext);
+	const { loggedIn } = useContext(AuthContext);
 
 	const location = useLocation();
 	const queryParams = new URLSearchParams(location.search);
@@ -15,15 +19,20 @@ const VerifyEmail = () => {
 	const token = queryParams.get('token');
 
 	const [validUrl, setValidUrl] = useState(false);
-	const [validToken, setValidToken] = useState(false);
 	
 	const [errMsg, setErrMsg] = useState("")
 	const [err, setErr] = useState(false)
 
 	const navigateToLogin = async () => {
-		setTimeout(() => {
-			navigate("/login");
-		}, 3000);
+		setTimeout(()=> {
+			navigate('/login');
+		   }, 2000);
+	}
+
+	const navigateToImage = async (response) => {
+		setTimeout(()=> {
+			navigate('/', response);
+		   }, 2000);
 	}
 
 	const verifyEmailUrl = async () => {
@@ -40,7 +49,8 @@ const VerifyEmail = () => {
 
 				if (response.status === 200) {
 					setValidUrl(true)
-					setValidToken(true)
+					console.log(response.cookie)
+					navigateToImage(response)
 				} else {
 					setErrMsg(response.data.message)
 					navigateToLogin()
@@ -68,15 +78,15 @@ const VerifyEmail = () => {
 		<div>
 			{(validUrl === true) ? (
 				<div>
-					<h1>Email verified successfully. You can log in now.</h1>
+					<h1>Email verified successfully. Redirecting to login.</h1>
 				</div>
 			) : (
 				<div>
-					<h1>You have entered an invalid link.</h1>
+					<h1>{errMsg}</h1>
 				</div>
 			)}
 
-			{errMsg && <h1>{errMsg}</h1>}
+			
 
 		</div>
 	);

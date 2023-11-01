@@ -50,9 +50,16 @@ router.post("/upload", auth, upload.single('file'), async (req, res) => {
     const response = await post1('test-model', { "img": img });
 
     console.log(response)
-
+    return res.status(200).json(response);
   } catch (err) {
+    
+    if(err.code === "ECONNREFUSED") {
+      return res.status(400).json({ message: "Couldn't communicate with the ml server." });
+    }
+    
     console.log(err)
+
+    return res.status(400).json({ message: err });
   }
 });
 
