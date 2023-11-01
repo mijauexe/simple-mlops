@@ -1,16 +1,10 @@
-import { useEffect, useState, useContext } from "react";
-import { useParams, Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Image from "./Image";
-import AuthContext from "../context/AuthContext";
 
 const VerifyEmail = () => {
 	const navigate = useNavigate();
-
-	const { getLoggedIn } = useContext(AuthContext);
-	const { loggedIn } = useContext(AuthContext);
-
 	const location = useLocation();
 	const queryParams = new URLSearchParams(location.search);
 
@@ -19,20 +13,20 @@ const VerifyEmail = () => {
 	const token = queryParams.get('token');
 
 	const [validUrl, setValidUrl] = useState(false);
-	
+
 	const [errMsg, setErrMsg] = useState("")
 	const [err, setErr] = useState(false)
 
 	const navigateToLogin = async () => {
-		setTimeout(()=> {
+		setTimeout(() => {
 			navigate('/login');
-		   }, 2000);
+		}, 2000);
 	}
 
 	const navigateToImage = async (response) => {
-		setTimeout(()=> {
+		setTimeout(() => {
 			navigate('/', response);
-		   }, 2000);
+		}, 2000);
 	}
 
 	const verifyEmailUrl = async () => {
@@ -44,12 +38,8 @@ const VerifyEmail = () => {
 			};
 			try {
 				const response = await axios.post(url, data);
-				console.log("123")
-				console.log(response);
-
 				if (response.status === 200) {
 					setValidUrl(true)
-					console.log(response.cookie)
 					navigateToImage(response)
 				} else {
 					setErrMsg(response.data.message)
@@ -57,14 +47,15 @@ const VerifyEmail = () => {
 				}
 
 			} catch (error) {
-				console.log("sven")
-				setErrMsg(error.response.data.message)
+				try {
+					setErrMsg(error.response.data.message)
+				} catch(error) {
+					setErr(true)
+					setErrMsg("You have entered an invalid link. Redirecting to login.")
+				}
 				navigateToLogin()
-				console.log(error.response.data.message)
 			}
 		} catch (error) {
-			console.log("rotim")
-			console.log(error);
 			setErrMsg(error)
 			navigateToLogin()
 		}
@@ -82,12 +73,9 @@ const VerifyEmail = () => {
 				</div>
 			) : (
 				<div>
-					<h1>{errMsg}</h1>
+					{err ? <h1>{errMsg}</h1> : <h1>Error.</h1>}
 				</div>
 			)}
-
-			
-
 		</div>
 	);
 };

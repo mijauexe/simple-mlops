@@ -7,8 +7,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -38,24 +36,16 @@ function Login() {
       };
 
       try {
-        const response = await axios.post(process.env.REACT_APP_API_URL + "/auth/login", loginData);
-
+        await axios.post(process.env.REACT_APP_API_URL + "/auth/login", loginData);
       } catch(error) {
-        console.log(error)
-        console.log("svencek")
         setErr(true)
         setErrMsg(error.response.data.errorMessage)
       }
-
-
       await getLoggedIn();
-
-
-
-
       navigate("/");
     } catch (err) {
-      console.log(err);
+      setErr(true)
+      setErrMsg("Not communicating with backend.")
     }
   }
   
